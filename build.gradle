@@ -1,0 +1,14 @@
+apply plugin: 'java'
+
+group 'org.ow2.proactive'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'http://spoon.gforge.inria.fr/repositories/releases/' }
+}
+
+dependencies {
+    compile 'fr.inria.gforge.spoon:spoon-core:1.5'
+}
