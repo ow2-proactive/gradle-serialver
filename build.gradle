@@ -1,4 +1,6 @@
 apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'maven'
 
 group 'org.ow2.proactive'
 version '1.0-SNAPSHOT'
@@ -10,5 +12,17 @@ repositories {
 }
 
 dependencies {
+    compile gradleApi()
     compile 'fr.inria.gforge.spoon:spoon-core:1.5'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://repo.activeeon.com/content/repositories/snapshots/") {
+                authentication(userName: "${System.getProperty('nexusUsername')}",
+                        password: "${System.getProperty('nexusPassword')}")
+            }
+        }
+    }
 }
