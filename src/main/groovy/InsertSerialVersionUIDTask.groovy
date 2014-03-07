@@ -9,6 +9,7 @@ class InsertSerialVersionUIDTask extends JavaExec {
         setMain('spoon.Launcher')
         setClasspath(project.rootProject.buildscript.configurations.classpath +
                 project.sourceSets.main.compileClasspath)
+        jvmArgs('-Xmx2048m')
         logging.captureStandardOutput LogLevel.INFO
     }
 
