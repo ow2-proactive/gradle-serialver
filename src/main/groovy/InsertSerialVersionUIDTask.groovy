@@ -8,7 +8,7 @@ class InsertSerialVersionUIDTask extends JavaExec {
     def InsertSerialVersionUIDTask() {
         setMain('spoon.Launcher')
         setClasspath(project.rootProject.buildscript.configurations.classpath +
-                project.sourceSets.main.runtimeClasspath)
+                project.sourceSets.main.compileClasspath)
         logging.captureStandardOutput LogLevel.INFO
     }
 
