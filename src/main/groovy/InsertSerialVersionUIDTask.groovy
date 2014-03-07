@@ -22,8 +22,9 @@ class InsertSerialVersionUIDTask extends JavaExec {
             super.exec()
         }
         input.eachWithIndex { dir, i ->
-            ant.copy( todir: dir ) {
-                fileset( dir: temporaryDirForIndex(i) )
+            project.copy {
+                from temporaryDirForIndex(i)
+                into dir
             }
         }
     }
