@@ -1,11 +1,10 @@
 /*
- * ################################################################
- *
+ *  *
  * ProActive Parallel Suite(TM): The Java(TM) library for
  *    Parallel, Distributed, Multi-Core Computing for
  *    Enterprise Grids & Clouds
  *
- * Copyright (C) 1997-2011 INRIA/University of
+ * Copyright (C) 1997-2015 INRIA/University of
  *                 Nice-Sophia Antipolis/ActiveEon
  * Contact: proactive@ow2.org or contact@activeeon.com
  *
@@ -27,31 +26,13 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  *
- *  Initial developer(s):               The ActiveEon Team
- *                        http://www.activeeon.com/
+ *  Initial developer(s):               The ProActive Team
+ *                        http://proactive.inria.fr/team_members.htm
  *  Contributor(s):
  *
- * ################################################################
- * $ACTIVEEON_INITIAL_DEV$
+ *  * $$ACTIVEEON_INITIAL_DEV$$
  */
-package serialver;
+package serialver.tests;
 
-import java.io.Serializable;
-
-import spoon.processing.AbstractProcessor;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtEnum;
-
-
-public abstract class BaseSerialVersionUIDProcessor extends
-        AbstractProcessor<spoon.reflect.declaration.CtClass<?>> {
-
-    protected static final String SERIAL_VERSION_UID_FIELD_NAME = "serialVersionUID";
-
-    protected boolean isSerializable(CtClass<?> klass) {
-        // ignore enums since enums are automatically Serializable and serialVersionUID is ignored for enums
-        return !(klass instanceof CtEnum) &&
-            klass.isSubtypeOf(getFactory().Class().createReference(Serializable.class));
-    }
-
+public class ExceptionSubClass extends Exception {
 }
