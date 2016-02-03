@@ -34,14 +34,14 @@
  */
 package serialver;
 
-import java.io.Serializable;
-
 import com.darylteo.gradle.javassist.transformers.ClassTransformer;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.NotFoundException;
 import javassist.build.JavassistBuildException;
+
+import java.io.Serializable;
 
 
 public class SerialVersionUIDTransformer extends ClassTransformer {
@@ -56,15 +56,12 @@ public class SerialVersionUIDTransformer extends ClassTransformer {
 
     public void applyTransformations(CtClass clazz) throws JavassistBuildException {
         try {
-            if (hasSerialVersionUIDField(clazz)) {
-                // replace existing serialVersionUID
-                clazz.removeField(clazz.getField(SERIALVERSIONUID_FIELD_NAME));
+            if (!hasSerialVersionUIDField(clazz)) {
+                CtField field = new CtField(CtClass.longType, SERIALVERSIONUID_FIELD_NAME, clazz);
+                field.setModifiers(javassist.Modifier.STATIC | javassist.Modifier.PRIVATE |
+                        javassist.Modifier.FINAL);
+                clazz.addField(field, javassist.CtField.Initializer.constant(serialVersionUIDValue));
             }
-
-            CtField field = new CtField(CtClass.longType, SERIALVERSIONUID_FIELD_NAME, clazz);
-            field.setModifiers(javassist.Modifier.STATIC | javassist.Modifier.PRIVATE |
-                javassist.Modifier.FINAL);
-            clazz.addField(field, javassist.CtField.Initializer.constant(serialVersionUIDValue));
         } catch (Exception e) {
             throw new JavassistBuildException(e);
         }

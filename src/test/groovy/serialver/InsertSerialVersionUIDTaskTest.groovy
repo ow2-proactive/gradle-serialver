@@ -42,7 +42,7 @@ public class InsertSerialVersionUIDTaskTest {
         project.compileJava.execute()
         project.serialver.execute()
 
-        assertEquals(42L, getCompiledClass(project).getField("serialVersionUID").getConstantValue())
+        assertEquals(7L, getCompiledClass(project).getField("serialVersionUID").getConstantValue())
     }
 
     private void createSerializableJavaSource(Project project) {
