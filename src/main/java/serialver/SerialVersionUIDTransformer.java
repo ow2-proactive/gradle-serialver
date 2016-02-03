@@ -50,12 +50,27 @@ public class SerialVersionUIDTransformer extends ClassTransformer {
 
     private long serialVersionUIDValue;
 
+    private boolean overwrite;
+
     public SerialVersionUIDTransformer(long serialVersionUIDValue) {
+        this(serialVersionUIDValue, true);
+    }
+
+    public SerialVersionUIDTransformer(long serialVersionUIDValue, boolean overwrite) {
         this.serialVersionUIDValue = serialVersionUIDValue;
+        this.overwrite = overwrite;
     }
 
     public void applyTransformations(CtClass clazz) throws JavassistBuildException {
         try {
+
+            if (hasSerialVersionUIDField(clazz)) {
+                if (overwrite) {
+                    // replace existing serialVersionUID
+                    clazz.removeField(clazz.getField(SERIALVERSIONUID_FIELD_NAME));
+                }
+            }
+
             if (!hasSerialVersionUIDField(clazz)) {
                 CtField field = new CtField(CtClass.longType, SERIALVERSIONUID_FIELD_NAME, clazz);
                 field.setModifiers(javassist.Modifier.STATIC | javassist.Modifier.PRIVATE |

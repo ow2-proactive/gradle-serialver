@@ -29,7 +29,33 @@ public class InsertSerialVersionUIDTaskTest {
     }
 
     @Test
-    public void shouldUpdateSerialVersionUIDField() throws Exception {
+    public void shouldUpdateSerialVersionUIDFieldWithoutOverwrite() throws Exception {
+        shouldUpdateSerialVersionUIDField(false, 7L);
+    }
+
+    @Test
+    public void shouldUpdateSerialVersionUIDFieldWithOverwrite() throws Exception {
+        shouldUpdateSerialVersionUIDField(true, 42L);
+    }
+
+    private void shouldUpdateSerialVersionUIDField(boolean ow, long expectedUID) {
+        Project project = ProjectBuilder.builder().build()
+        project.apply(plugin: 'java')
+
+        project.task("serialver", type: InsertSerialVersionUIDTask.class) {
+            serialver = '42L'
+            overwrite = ow
+        }
+
+        createSerializableJavaSourceWithSerialVersionUID(project)
+
+        project.compileJava.execute()
+        project.serialver.execute()
+
+        assertEquals(expectedUID, getCompiledClass(project).getField("serialVersionUID").getConstantValue())
+    }
+
+    private void shouldUpdateSerialVersionUIDFieldDefault() {
         Project project = ProjectBuilder.builder().build()
         project.apply(plugin: 'java')
 
@@ -42,7 +68,7 @@ public class InsertSerialVersionUIDTaskTest {
         project.compileJava.execute()
         project.serialver.execute()
 
-        assertEquals(7L, getCompiledClass(project).getField("serialVersionUID").getConstantValue())
+        assertEquals(42L, getCompiledClass(project).getField("serialVersionUID").getConstantValue())
     }
 
     private void createSerializableJavaSource(Project project) {
