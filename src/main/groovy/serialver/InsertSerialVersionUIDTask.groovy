@@ -6,7 +6,8 @@ import org.gradle.api.tasks.TaskAction
 public class InsertSerialVersionUIDTask extends TransformationTask {
 
     def serialver
-    def overwrite
+    def overwrite = true
+    def forceUIDOnThrowable = false
 
     InsertSerialVersionUIDTask() {
         dependsOn(project.classes)
@@ -23,11 +24,7 @@ public class InsertSerialVersionUIDTask extends TransformationTask {
             serialVerAsLong = serialver
         }
 
-        if (overwrite != null) {
-            setTransformation(new SerialVersionUIDTransformer(serialVerAsLong, overwrite))
-        } else {
-            setTransformation(new SerialVersionUIDTransformer(serialVerAsLong))
-        }
+        setTransformation(new SerialVersionUIDTransformer(serialVerAsLong, overwrite, forceUIDOnThrowable))
 
         // in place transformation
         from(project.sourceSets.main.output[0])
