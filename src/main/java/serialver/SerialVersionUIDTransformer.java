@@ -34,14 +34,14 @@
  */
 package serialver;
 
-import java.io.Serializable;
-
 import com.darylteo.gradle.javassist.transformers.ClassTransformer;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.NotFoundException;
 import javassist.build.JavassistBuildException;
+
+import java.io.Serializable;
 
 
 public class SerialVersionUIDTransformer extends ClassTransformer {
@@ -50,21 +50,41 @@ public class SerialVersionUIDTransformer extends ClassTransformer {
 
     private long serialVersionUIDValue;
 
+    private boolean overwrite;
+
+    private boolean forceUIDOnThrowable;
+
     public SerialVersionUIDTransformer(long serialVersionUIDValue) {
+        this(serialVersionUIDValue, true, false);
+    }
+
+
+    public SerialVersionUIDTransformer(long serialVersionUIDValue, boolean overwrite, boolean forceUIDOnThrowable) {
         this.serialVersionUIDValue = serialVersionUIDValue;
+        this.overwrite = overwrite;
+        this.forceUIDOnThrowable = forceUIDOnThrowable;
     }
 
     public void applyTransformations(CtClass clazz) throws JavassistBuildException {
         try {
+
             if (hasSerialVersionUIDField(clazz)) {
-                // replace existing serialVersionUID
-                clazz.removeField(clazz.getField(SERIALVERSIONUID_FIELD_NAME));
+                if (overwrite || (forceUIDOnThrowable && isThrowable(clazz))) {
+                    // replace existing serialVersionUID
+                    clazz.removeField(clazz.getField(SERIALVERSIONUID_FIELD_NAME));
+                }
             }
 
-            CtField field = new CtField(CtClass.longType, SERIALVERSIONUID_FIELD_NAME, clazz);
-            field.setModifiers(javassist.Modifier.STATIC | javassist.Modifier.PRIVATE |
-                javassist.Modifier.FINAL);
-            clazz.addField(field, javassist.CtField.Initializer.constant(serialVersionUIDValue));
+            if (!hasSerialVersionUIDField(clazz)) {
+                CtField field = new CtField(CtClass.longType, SERIALVERSIONUID_FIELD_NAME, clazz);
+                field.setModifiers(javassist.Modifier.STATIC | javassist.Modifier.PRIVATE |
+                        javassist.Modifier.FINAL);
+                if (forceUIDOnThrowable && isThrowable(clazz)) {
+                    clazz.addField(field, javassist.CtField.Initializer.constant(1L));
+                } else {
+                    clazz.addField(field, javassist.CtField.Initializer.constant(serialVersionUIDValue));
+                }
+            }
         } catch (Exception e) {
             throw new JavassistBuildException(e);
         }
@@ -76,6 +96,10 @@ public class SerialVersionUIDTransformer extends ClassTransformer {
         } catch (NotFoundException e) {
             throw new JavassistBuildException(e);
         }
+    }
+
+    private boolean isThrowable(CtClass clazz) throws NotFoundException {
+        return clazz.subtypeOf(ClassPool.getDefault().get(Throwable.class.getName()));
     }
 
     private boolean isClass(CtClass clazz) {
