@@ -17,37 +17,37 @@ public class InsertSerialVersionUIDTaskTest {
     }
 
     @Test
-    public void shouldAddSerialVersionUIDFieldWithForceThrowable() throws Exception {
+    public void shouldAddSerialVersionUIDFieldWithForceException() throws Exception {
         shouldAddSerialVersionUIDField(true, 1L)
     }
 
-    public void shouldAddSerialVersionUIDField(boolean forceThrowable, long expectedUIDThrowable) throws Exception {
+    public void shouldAddSerialVersionUIDField(boolean forceException, long expectedUIDException) throws Exception {
         Project project = ProjectBuilder.builder().build()
         project.apply(plugin: 'java')
 
         project.task("serialver", type: InsertSerialVersionUIDTask.class) {
             serialver = '42L'
             overwrite = true
-            forceUIDOnThrowable = forceThrowable
+            forceUIDOnException = forceException
         }
 
         createSerializableJavaSource(project)
-        createThrowableJavaSource(project)
+        createExceptionJavaSource(project)
 
         project.compileJava.execute()
         project.serialver.execute()
 
         assertEquals(42L, getCompiledSerialzableClass(project).getField("serialVersionUID").getConstantValue())
-        assertEquals(expectedUIDThrowable, getCompiledThrowableClass(project).getField("serialVersionUID").getConstantValue())
+        assertEquals(expectedUIDException, getCompiledExceptionClass(project).getField("serialVersionUID").getConstantValue())
     }
 
     @Test
-    public void shouldUpdateSerialVersionUIDFieldWithoutOverwriteAndForceThrowable() throws Exception {
+    public void shouldUpdateSerialVersionUIDFieldWithoutOverwriteAndForceException() throws Exception {
         shouldUpdateSerialVersionUIDField(false, true, 7L, 1L);
     }
 
     @Test
-    public void shouldUpdateSerialVersionUIDFieldWithOverwriteAndForceThrowable() throws Exception {
+    public void shouldUpdateSerialVersionUIDFieldWithOverwriteAndForceException() throws Exception {
         shouldUpdateSerialVersionUIDField(true, true, 42L, 1L);
     }
 
@@ -61,24 +61,24 @@ public class InsertSerialVersionUIDTaskTest {
         shouldUpdateSerialVersionUIDField(false, false, 7L, 7L);
     }
 
-    private void shouldUpdateSerialVersionUIDField(boolean overwrt, boolean forcethrow, long expectedUIDSerializable, long expectedUIDThrowable) {
+    private void shouldUpdateSerialVersionUIDField(boolean overwrt, boolean forcethrow, long expectedUIDSerializable, long expectedUIDException) {
         Project project = ProjectBuilder.builder().build()
         project.apply(plugin: 'java')
 
         project.task("serialver", type: InsertSerialVersionUIDTask.class) {
             serialver = '42L'
             overwrite = overwrt
-            forceUIDOnThrowable = forcethrow
+            forceUIDOnException = forcethrow
         }
 
         createSerializableJavaSourceWithSerialVersionUID(project)
-        createThrowableJavaSourceWithSerialVersionUID(project)
+        createExceptionJavaSourceWithSerialVersionUID(project)
 
         project.compileJava.execute()
         project.serialver.execute()
 
         assertEquals(expectedUIDSerializable, getCompiledSerialzableClass(project).getField("serialVersionUID").getConstantValue())
-        assertEquals(expectedUIDThrowable, getCompiledThrowableClass(project).getField("serialVersionUID").getConstantValue())
+        assertEquals(expectedUIDException, getCompiledExceptionClass(project).getField("serialVersionUID").getConstantValue())
     }
 
     @Test
@@ -91,13 +91,13 @@ public class InsertSerialVersionUIDTaskTest {
         }
 
         createSerializableJavaSourceWithSerialVersionUID(project)
-        createThrowableJavaSourceWithSerialVersionUID(project)
+        createExceptionJavaSourceWithSerialVersionUID(project)
 
         project.compileJava.execute()
         project.serialver.execute()
 
         assertEquals(42L, getCompiledSerialzableClass(project).getField("serialVersionUID").getConstantValue())
-        assertEquals(42L, getCompiledThrowableClass(project).getField("serialVersionUID").getConstantValue())
+        assertEquals(42L, getCompiledExceptionClass(project).getField("serialVersionUID").getConstantValue())
     }
 
     private void createSerializableJavaSource(Project project) {
@@ -109,11 +109,11 @@ public class InsertSerialVersionUIDTaskTest {
                 '}'
     }
 
-    private void createThrowableJavaSource(Project project) {
+    private void createExceptionJavaSource(Project project) {
         FileUtils.forceMkdir(project.sourceSets.main.java.srcDirs[0])
 
-        new File(project.sourceSets.main.java.srcDirs[0], 'ThrowableClass.java') <<
-                'public class ThrowableClass extends Throwable {\n' +
+        new File(project.sourceSets.main.java.srcDirs[0], 'ExceptionClass.java') <<
+                'public class ExceptionClass extends Exception {\n' +
                 '}'
     }
 
@@ -127,11 +127,11 @@ public class InsertSerialVersionUIDTaskTest {
                 '}'
     }
 
-    private void createThrowableJavaSourceWithSerialVersionUID(Project project) {
+    private void createExceptionJavaSourceWithSerialVersionUID(Project project) {
         FileUtils.forceMkdir(project.sourceSets.main.java.srcDirs[0])
 
-        new File(project.sourceSets.main.java.srcDirs[0], 'ThrowableClass.java') <<
-                'public class ThrowableClass extends Throwable {\n' +
+        new File(project.sourceSets.main.java.srcDirs[0], 'ExceptionClass.java') <<
+                'public class ExceptionClass extends Exception {\n' +
                 'private static final long serialVersionUID = 7L; \n' +
                 '}'
     }
@@ -142,9 +142,9 @@ public class InsertSerialVersionUIDTaskTest {
         ctClass
     }
 
-    private CtClass getCompiledThrowableClass(Project project) {
+    private CtClass getCompiledExceptionClass(Project project) {
         ClassPool pool = ClassPool.getDefault();
-        CtClass ctClass = pool.makeClass(new FileInputStream(new File(project.sourceSets.main.output[0], 'ThrowableClass.class')));
+        CtClass ctClass = pool.makeClass(new FileInputStream(new File(project.sourceSets.main.output[0], 'ExceptionClass.class')));
         ctClass
     }
 }

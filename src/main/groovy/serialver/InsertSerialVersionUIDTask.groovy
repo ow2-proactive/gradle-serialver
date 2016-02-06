@@ -7,7 +7,7 @@ public class InsertSerialVersionUIDTask extends TransformationTask {
 
     def serialver
     def overwrite = true
-    def forceUIDOnThrowable = false
+    def forceUIDOnException = false
 
     InsertSerialVersionUIDTask() {
         dependsOn(project.classes)
@@ -24,7 +24,7 @@ public class InsertSerialVersionUIDTask extends TransformationTask {
             serialVerAsLong = serialver
         }
 
-        setTransformation(new SerialVersionUIDTransformer(serialVerAsLong, overwrite, forceUIDOnThrowable))
+        setTransformation(new SerialVersionUIDTransformer(serialVerAsLong, overwrite, forceUIDOnException))
 
         // in place transformation
         from(project.sourceSets.main.output[0])

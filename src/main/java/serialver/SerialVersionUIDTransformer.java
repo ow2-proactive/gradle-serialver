@@ -52,24 +52,24 @@ public class SerialVersionUIDTransformer extends ClassTransformer {
 
     private boolean overwrite;
 
-    private boolean forceUIDOnThrowable;
+    private boolean forceUIDOnException;
 
     public SerialVersionUIDTransformer(long serialVersionUIDValue) {
         this(serialVersionUIDValue, true, false);
     }
 
 
-    public SerialVersionUIDTransformer(long serialVersionUIDValue, boolean overwrite, boolean forceUIDOnThrowable) {
+    public SerialVersionUIDTransformer(long serialVersionUIDValue, boolean overwrite, boolean forceUIDOnException) {
         this.serialVersionUIDValue = serialVersionUIDValue;
         this.overwrite = overwrite;
-        this.forceUIDOnThrowable = forceUIDOnThrowable;
+        this.forceUIDOnException = forceUIDOnException;
     }
 
     public void applyTransformations(CtClass clazz) throws JavassistBuildException {
         try {
 
             if (hasSerialVersionUIDField(clazz)) {
-                if (overwrite || (forceUIDOnThrowable && isThrowable(clazz))) {
+                if (overwrite || (forceUIDOnException && isException(clazz))) {
                     // replace existing serialVersionUID
                     clazz.removeField(clazz.getField(SERIALVERSIONUID_FIELD_NAME));
                 }
@@ -79,7 +79,7 @@ public class SerialVersionUIDTransformer extends ClassTransformer {
                 CtField field = new CtField(CtClass.longType, SERIALVERSIONUID_FIELD_NAME, clazz);
                 field.setModifiers(javassist.Modifier.STATIC | javassist.Modifier.PRIVATE |
                         javassist.Modifier.FINAL);
-                if (forceUIDOnThrowable && isThrowable(clazz)) {
+                if (forceUIDOnException && isException(clazz)) {
                     clazz.addField(field, javassist.CtField.Initializer.constant(1L));
                 } else {
                     clazz.addField(field, javassist.CtField.Initializer.constant(serialVersionUIDValue));
@@ -98,8 +98,8 @@ public class SerialVersionUIDTransformer extends ClassTransformer {
         }
     }
 
-    private boolean isThrowable(CtClass clazz) throws NotFoundException {
-        return clazz.subtypeOf(ClassPool.getDefault().get(Throwable.class.getName()));
+    private boolean isException(CtClass clazz) throws NotFoundException {
+        return clazz.subtypeOf(ClassPool.getDefault().get(Exception.class.getName()));
     }
 
     private boolean isClass(CtClass clazz) {
