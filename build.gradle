@@ -6,7 +6,7 @@ group 'org.ow2.proactive'
 version '2.2'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
